@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import API from '../services/api';
 
 const ExerciseList = () => {
   const [exercises, setExercises] = useState([]);
@@ -19,30 +20,9 @@ const ExerciseList = () => {
       if (filter.topic) params.append('topic', filter.topic);
       if (filter.difficulty) params.append('difficulty', filter.difficulty);
       
-      // Try both possible URLs
-      const urls = [
-        `http://localhost:5001/api/exercises?${params}`,
-        `http://127.0.0.1:5001/api/exercises?${params}`
-      ];
-      
-      let response = null;
-      let data = null;
-      
-      for (const url of urls) {
-        try {
-          response = await fetch(url);
-          data = await response.json();
-          if (response.ok) break;
-        } catch (e) {
-          console.log(`Failed to connect to ${url}`);
-        }
-      }
-      
-      if (response && response.ok) {
-        setExercises(data.exercises || []);
-      } else {
-        setError('Cannot connect to server. Make sure the backend is running on port 5001.');
-      }
+      const response = await API.get(`/exercises?${params.toString()}`);
+
+      setExercises(response.data.exercises || []);
     } catch (err) {
       setError('Cannot connect to server. Make sure the backend is running.');
       console.error(err);
