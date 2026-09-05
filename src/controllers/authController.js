@@ -1,5 +1,6 @@
 const User = require('../models/User');
 const jwt = require('jsonwebtoken');
+const bcrypt = require('bcryptjs');
 
 const generateToken = (id) => {
   return jwt.sign({ id }, process.env.JWT_SECRET, {
@@ -53,7 +54,9 @@ const login = async (req, res) => {
         email: user.email,
         name: user.name,
         totalPoints: user.totalPoints,
-        proficiencyLevel: user.proficiencyLevel
+        exercisesCompleted: user.exercisesCompleted,
+        proficiencyLevel: user.proficiencyLevel,
+        videosWatched: user.videosWatched
       }
     });
   } catch (error) {
@@ -83,4 +86,31 @@ const getMe = async (req, res) => {
   }
 };
 
-module.exports = { register, login, getMe };
+const updateLevel = async (req, res) => {
+  try {
+    const { level } = req.body;
+    const user = await User.findById(req.user.id);
+    if (!user) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+    user.proficiencyLevel = level;
+    await user.save();
+    res.json({
+      success: true,
+      user: {
+        id: user._id,
+        email: user.email,
+        name: user.name,
+        totalPoints: user.totalPoints,
+        exercisesCompleted: user.exercisesCompleted,
+        proficiencyLevel: user.proficiencyLevel,
+        videosWatched: user.videosWatched
+      }
+    });
+  } catch (error) {
+    console.error('Update level error:', error);
+    res.status(500).json({ error: 'Server error' });
+  }
+};
+
+module.exports = { register, login, getMe, updateLevel };

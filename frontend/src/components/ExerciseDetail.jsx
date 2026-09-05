@@ -11,6 +11,7 @@ const ExerciseDetail = () => {
   const [submitted, setSubmitted] = useState(false);
   const [result, setResult] = useState(null);
   const [isGuest, setIsGuest] = useState(true);
+  const [submitting, setSubmitting] = useState(false);
 
   useEffect(() => {
     fetchExercise();
@@ -39,6 +40,8 @@ const ExerciseDetail = () => {
       return;
     }
 
+    setSubmitting(true);
+
     if (isGuest) {
       const isCorrect = selectedAnswer === exercise.correctAnswer;
       setResult({
@@ -47,6 +50,7 @@ const ExerciseDetail = () => {
         pointsEarned: isCorrect ? exercise.points : 0,
       });
       setSubmitted(true);
+      setSubmitting(false);
       return;
     }
 
@@ -56,6 +60,9 @@ const ExerciseDetail = () => {
       setSubmitted(true);
     } catch (error) {
       console.error('Error submitting answer:', error);
+      alert('Failed to submit answer. Please try again.');
+    } finally {
+      setSubmitting(false);
     }
   };
 
@@ -111,7 +118,7 @@ const ExerciseDetail = () => {
                   : 'hover:bg-gray-50'
               }`}
               onClick={() => !submitted && setSelectedAnswer(option)}
-              disabled={submitted}
+              disabled={submitted || submitting}
             >
               {option}
             </button>
@@ -121,9 +128,10 @@ const ExerciseDetail = () => {
         {!submitted ? (
           <button
             onClick={handleSubmit}
-            className="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700"
+            disabled={submitting}
+            className="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700 disabled:opacity-50"
           >
-            Submit Answer
+            {submitting ? 'Submitting...' : 'Submit Answer'}
           </button>
         ) : (
           <div className="space-y-4">

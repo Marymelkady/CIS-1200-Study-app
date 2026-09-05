@@ -65,13 +65,17 @@ const submitAnswer = async (req, res) => {
       user.totalPoints += exercise.points;
       user.exercisesCompleted += 1;
       
-      if (user.totalPoints >= 150) user.proficiencyLevel = 'C2';
-      else if (user.totalPoints >= 120) user.proficiencyLevel = 'C1';
-      else if (user.totalPoints >= 90) user.proficiencyLevel = 'B2';
-      else if (user.totalPoints >= 60) user.proficiencyLevel = 'B1';
-      else if (user.totalPoints >= 30) user.proficiencyLevel = 'A2';
-      else user.proficiencyLevel = 'A1';
+      // Level up logic based on total points
+      const points = user.totalPoints;
+      let newLevel = 'A1';
+      if (points >= 150) newLevel = 'C2';
+      else if (points >= 120) newLevel = 'C1';
+      else if (points >= 90) newLevel = 'B2';
+      else if (points >= 60) newLevel = 'B1';
+      else if (points >= 30) newLevel = 'A2';
+      else newLevel = 'A1';
       
+      user.proficiencyLevel = newLevel;
       await user.save();
     }
 
